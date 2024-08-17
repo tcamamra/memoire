@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import pickle
+import lightgbm as lgb
 
 app = Flask(__name__)
 
@@ -46,6 +47,36 @@ def api_predict():
     else:
         return jsonify({'error': "Méthode non supportée. Utilisez POST pour les prédictions."})
 
+# Route de test pour vérifier l'installation de LightGBM
+@app.route('/test_lightgbm')
+def test_lightgbm():
+    try:
+        import lightgbm as lgb
+        return "LightGBM is installed correctly!"
+    except ImportError as e:
+        return f"Error: {str(e)}"
+
+# Route de test pour une prédiction simple avec LightGBM
+@app.route('/test_prediction')
+def test_prediction():
+    import lightgbm as lgb
+    import numpy as np
+
+    try:
+        # Créez un modèle fictif pour le test
+        data = np.array([[1, 2, 3], [4, 5, 6]])
+        label = np.array([1, 0])
+        train_data = lgb.Dataset(data, label=label)
+        params = {'objective': 'binary'}
+
+        # Entraînez un modèle LightGBM
+        model = lgb.train(params, train_data, 2)
+
+        # Faire une prédiction simple
+        prediction = model.predict(np.array([[1, 2, 3]]))
+        return f"Prediction: {prediction[0]}"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
 if __name__ == '__main__':
     app.run(port=8000)
-
