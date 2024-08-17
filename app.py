@@ -31,21 +31,25 @@ def predict():
 
     return render_template('index.html')
 
-@app.route('/api/predict', methods=['POST'])
-def api_predict():
+
+@app.route('/predict', methods=['GET', 'POST'])
+def predict():
     if request.method == 'POST':
         client_id = int(request.form['client_id'])
         if client_id in df['id'].values:
-            # Préparation des caractéristiques du client pour la prédiction sans l'ID
+            # Extraction des caractéristiques du client sans inclure l'ID
             client_features = df[df['id'] == client_id].drop('id', axis=1).iloc[0].values
-            prediction = model.predict([client_features])[0]
-            result = {'prediction': int(prediction)}
+            try:
+                prediction = model.predict([client_features])[0]
+                return render_template('result.html', prediction=prediction)
+            except AttributeError as e:
+                error_message = f"Error during prediction: {str(e)}"
+                return render_template('result.html', error=error_message)
         else:
-            result = {'error': "ID client non reconnu dans nos données.", 'prediction': None}
+            return render_template('result.html', error="Identifiant client non trouvé dans nos enregistrements.")
 
-        return jsonify(result)
-    else:
-        return jsonify({'error': "Méthode non supportée. Utilisez POST pour les prédictions."})
+    return render_template('index.html')
+
 
 # Route de test pour vérifier l'installation de LightGBM
 @app.route('/test_lightgbm')
