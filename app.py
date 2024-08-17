@@ -31,9 +31,8 @@ def predict():
 
     return render_template('index.html')
 
-
-@app.route('/predict', methods=['GET', 'POST'])
-def predict():
+@app.route('/predict_with_error_handling', methods=['GET', 'POST'])
+def predict_with_error_handling():
     if request.method == 'POST':
         client_id = int(request.form['client_id'])
         if client_id in df['id'].values:
@@ -49,7 +48,6 @@ def predict():
             return render_template('result.html', error="Identifiant client non trouvé dans nos enregistrements.")
 
     return render_template('index.html')
-
 
 # Route de test pour vérifier l'installation de LightGBM
 @app.route('/test_lightgbm')
